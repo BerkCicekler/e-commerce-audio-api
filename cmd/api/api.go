@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/BerkCicekler/e-commerce-audio-api/repository"
+	"github.com/BerkCicekler/e-commerce-audio-api/service/category"
 	"github.com/BerkCicekler/e-commerce-audio-api/service/image"
 	"github.com/BerkCicekler/e-commerce-audio-api/service/user"
 	"github.com/gorilla/mux"
@@ -33,6 +34,13 @@ func (s *APIServer) Run(mongoDatabase *mongo.Database) error {
 	}
 	userHandler := user.UserServiceNewHandler(userRepository)
 	userHandler.RegisterRoutes(subRouter)
+
+
+	categoriesRepository := repository.CategoriesRepo{
+		MongoCollection: mongoDatabase.Collection("categories"),
+	}
+	categoriesHandler := category.CategoriesServiceNewHandler(&categoriesRepository)
+	categoriesHandler.RegisterRoutes(subRouter)
 
 	log.Println("Listening on", s.addr)
 
