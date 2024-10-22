@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/BerkCicekler/e-commerce-audio-api/utils"
@@ -37,16 +36,9 @@ func WithJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
 		claims := token.Claims.(jwt.MapClaims)
 		str := claims["userID"].(string)
 
-		userID, err := strconv.Atoi(str)
-		if err != nil {
-			log.Printf("failed to convert userID to int: %v", err)
-			permissionDenied(w)
-			return
-		}
-
 		// Add the user to the context
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, UserKey, userID)
+		ctx = context.WithValue(ctx, UserKey, str)
 		r = r.WithContext(ctx)
 
 		// Call the function if the token is valid
