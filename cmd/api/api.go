@@ -46,7 +46,7 @@ func (s *APIServer) Run(mongoDatabase *mongo.Database) error {
 	productRepository := repository.ProductRepo{
 		MongoCollection: mongoDatabase.Collection("products"),
 	}
-	productsHandler := product.CategoriesServiceNewHandler(&productRepository)
+	productsHandler := product.ProductServiceNewHandler(&productRepository)
 	productsHandler.RegisterRoutes(subRouter)
 
 	log.Println("Listening on", s.addr)

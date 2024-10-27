@@ -15,7 +15,7 @@ type ProductServiceHandler struct {
 	repository *repository.ProductRepo
 }
 
-func CategoriesServiceNewHandler(repository *repository.ProductRepo) *ProductServiceHandler {
+func ProductServiceNewHandler(repository *repository.ProductRepo) *ProductServiceHandler {
 	return &ProductServiceHandler{repository: repository}
 }
 
