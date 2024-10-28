@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/BerkCicekler/e-commerce-audio-api/repository"
+	"github.com/BerkCicekler/e-commerce-audio-api/service/basket"
 	"github.com/BerkCicekler/e-commerce-audio-api/service/category"
 	"github.com/BerkCicekler/e-commerce-audio-api/service/image"
 	"github.com/BerkCicekler/e-commerce-audio-api/service/product"
@@ -48,6 +49,12 @@ func (s *APIServer) Run(mongoDatabase *mongo.Database) error {
 	}
 	productsHandler := product.ProductServiceNewHandler(&productRepository)
 	productsHandler.RegisterRoutes(subRouter)
+
+	basketRepository := repository.BasketRepo{
+		MongoCollection: mongoDatabase.Collection("basket"),
+	}
+	basketHandler := basket.BasketServiceNewHandler(&basketRepository)
+	basketHandler.RegisterRoutes(subRouter)
 
 	log.Println("Listening on", s.addr)
 
