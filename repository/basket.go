@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/BerkCicekler/e-commerce-audio-api/model"
@@ -58,7 +57,6 @@ func (r *BasketRepo) AddToBasket(productId, uId *primitive.ObjectID) (primitive.
 	}
 	obId := primitive.NewObjectID()
 	
-	fmt.Println(obId)
 	_, err = r.MongoCollection.InsertOne(context.TODO(), model.Basket{
 		ID: obId,
 		UserID: *uId,
@@ -69,7 +67,7 @@ func (r *BasketRepo) AddToBasket(productId, uId *primitive.ObjectID) (primitive.
 		return primitive.NilObjectID, err
 	}
 	
-	return primitive.NilObjectID, nil
+	return obId, nil
 }
 
 func (r *BasketRepo) AddToItemCount(value int8, BasketID *primitive.ObjectID) error {
