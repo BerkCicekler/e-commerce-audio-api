@@ -1,3 +1,7 @@
+# About API
+This is a **fake** REST API specifically built for my mobile application. It includes all the essential features required for a basic e-commerce application.
+This API uses mongoDB as database.
+
 ## End points
 ### Login 
 `/api/v1/user/login POST` request 
@@ -131,3 +135,15 @@ request
 
 ### IMAGE
 ```/api/v1/image/{ImageFile} GET```
+
+## How do I use
+download the project <br>
+create a `.env` file and fill the variables 
+```env
+MONGO_URI="PASTE your mongoURI"
+DB_NAME="DB name"
+JWT_SECRET="SUPERSECRET"
+```
+create all the collections in ur DB and import jsons the correct collections <br>
+the dumy datas can be found in: `/collectionDumData/` <br>
+run `go run main.go` command inside the project directory
