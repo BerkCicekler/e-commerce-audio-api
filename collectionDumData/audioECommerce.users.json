@@ -1,0 +1,18 @@
+[{
+  "_id": {
+    "$oid": "67164fdf0f391a1fb0fd617e"
+  },
+  "userName": "mal yay",
+  "password": "$2a$10$O5qyMBrIYra9goih019zKOeSSXA5lytFukdvFkCuInwaX3olXAoRy",
+  "email": "wiro@gmail.com",
+  "phoneNumber": ""
+},
+{
+  "_id": {
+    "$oid": "6725ec7f4a310b9226c27431"
+  },
+  "userName": "mal yay",
+  "password": "$2a$10$hkNoEd0AMm5YdLHL6zz/QOzDXCmwWFKZJRkJElhqCyjvnVGMHszhe",
+  "email": "wirocc@gmail.com",
+  "phoneNumber": ""
+}]

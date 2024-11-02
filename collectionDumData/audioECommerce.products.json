@@ -1,0 +1,55 @@
+[{
+  "_id": {
+    "$oid": "6717af4decddea45c1a064de"
+  },
+  "name": "TMA-2 HD Wireless",
+  "price": 300,
+  "category": {
+    "$oid": "671652995b41c8ea613df136"
+  },
+  "pictureName": "headphone.jpg"
+},
+{
+  "_id": {
+    "$oid": "6717b2bdecddea45c1a064df"
+  },
+  "name": "Razer black Nova 1",
+  "price": 220,
+  "category": {
+    "$oid": "671652995b41c8ea613df136"
+  },
+  "pictureName": "headphone.jpg"
+},
+{
+  "_id": {
+    "$oid": "6717b358ecddea45c1a064e2"
+  },
+  "category": {
+    "$oid": "671652995b41c8ea613df136"
+  },
+  "pictureName": "headphone.jpg",
+  "name": "Steelseries Artic 3",
+  "price": 190
+},
+{
+  "_id": {
+    "$oid": "6717b3d7ecddea45c1a064e3"
+  },
+  "category": {
+    "$oid": "671652995b41c8ea613df136"
+  },
+  "pictureName": "headphone.jpg",
+  "name": "Logitech blue Gem",
+  "price": 330
+},
+{
+  "_id": {
+    "$oid": "6717b407ecddea45c1a064e4"
+  },
+  "category": {
+    "$oid": "671653145b41c8ea613df139"
+  },
+  "pictureName": "cable.jpg",
+  "name": "CO2 - Cable",
+  "price": 25
+}]

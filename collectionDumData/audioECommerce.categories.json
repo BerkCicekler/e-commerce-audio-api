@@ -1,0 +1,24 @@
+[{
+  "_id": {
+    "$oid": "671652995b41c8ea613df136"
+  },
+  "value": "headphone"
+},
+{
+  "_id": {
+    "$oid": "671652b95b41c8ea613df137"
+  },
+  "value": "headband"
+},
+{
+  "_id": {
+    "$oid": "671652c85b41c8ea613df138"
+  },
+  "value": "earpads"
+},
+{
+  "_id": {
+    "$oid": "671653145b41c8ea613df139"
+  },
+  "value": "cable"
+}]
