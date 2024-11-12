@@ -13,7 +13,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/oauth2"
 )
 
 type UserServiceHandler struct {
@@ -27,8 +26,7 @@ func UserServiceNewHandler(repository repository.UsersRepo) *UserServiceHandler 
 func (h *UserServiceHandler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/user/login", h.handleLogin).Methods("POST")
 	router.HandleFunc("/user/register", h.handleRegister).Methods("POST")
-	router.HandleFunc("/user/google/login", h.handleGoogleLogin).Methods("GET")
-	router.HandleFunc("/user/google/callback", h.handleGoogleCallback).Methods("GET")
+	router.HandleFunc("/user/google/login", h.handleGoogleAuthCodeLogin).Methods("POST")
 }
 
 func (h *UserServiceHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -122,21 +120,14 @@ func (h *UserServiceHandler) handleRegister(w http.ResponseWriter, r *http.Reque
 	utils.WriteJSON(w, http.StatusCreated, userResponse)
 }
 
-// GOOGLE 
-
-func (h *UserServiceHandler) handleGoogleLogin(w http.ResponseWriter, r *http.Request) {
-	url := auth.GoogleOauthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	http.Redirect(w, r, url, http.StatusFound)
-}
-
-func (h *UserServiceHandler) handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
-	code := r.URL.Query().Get("code")
-	if code == "" {
-		http.Error(w, "Code not found", http.StatusBadRequest)
+func (h *UserServiceHandler) handleGoogleAuthCodeLogin(w http.ResponseWriter, r *http.Request) {
+	var googleLoginRequest model.UserGoogleLoginRequest
+	if err := utils.ParseJSON(r, &googleLoginRequest); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	token, err := auth.GoogleOauthConfig.Exchange(context.Background(), code)
+	token, err := auth.GoogleOauthConfig.Exchange(context.Background(), googleLoginRequest.Code)
 
 	if err != nil {
 		http.Error(w, "Failed to exchange token", http.StatusInternalServerError)
