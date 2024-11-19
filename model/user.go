@@ -17,10 +17,6 @@ type UserLoginResponse struct {
 	PhoneNumber string             `json:"phoneNumber,omitempty"`
 }
 
-type UserGoogleLoginRequest struct {
-	Code		string			   `json:"code"`
-}
-
 func UserLoginResponseFromUser(user *User) (*UserLoginResponse) {
 	return &UserLoginResponse{
 		UserName: user.UserName,

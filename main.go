@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/BerkCicekler/e-commerce-audio-api/cmd/api"
-	"github.com/BerkCicekler/e-commerce-audio-api/service/auth"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -23,7 +22,6 @@ func init() {
 	}
 	
 	log.Println("env file loaded")
-	auth.InitGoogle()
 
 	// create mongodb client
 	mongoClient, err = mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGO_URI")))
