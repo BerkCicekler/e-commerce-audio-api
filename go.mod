@@ -8,8 +8,6 @@ require (
 	github.com/gorilla/mux v1.8.1
 )
 
-require cloud.google.com/go/compute/metadata v0.3.0 // indirect
-
 require (
 	github.com/gabriel-vasile/mimetype v1.4.5 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -26,7 +24,6 @@ require (
 	go.mongodb.org/mongo-driver v1.17.1
 	golang.org/x/crypto v0.28.0
 	golang.org/x/net v0.30.0 // indirect
-	golang.org/x/oauth2 v0.24.0
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
