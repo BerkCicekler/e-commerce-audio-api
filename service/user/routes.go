@@ -1,8 +1,6 @@
 package user
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -26,7 +24,7 @@ func UserServiceNewHandler(repository repository.UsersRepo) *UserServiceHandler 
 func (h *UserServiceHandler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/user/login", h.handleLogin).Methods("POST")
 	router.HandleFunc("/user/register", h.handleRegister).Methods("POST")
-	router.HandleFunc("/user/google/login", h.handleGoogleAuthCodeLogin).Methods("POST")
+	router.HandleFunc("/user/oauth", h.handleOauth).Methods("POST")
 }
 
 func (h *UserServiceHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +96,6 @@ func (h *UserServiceHandler) handleRegister(w http.ResponseWriter, r *http.Reque
 		ID: obId,
 		UserName: user.UserName,
 		Email: user.Email,
-		PhoneNumber: user.PhoneNumber,
 		Password: hashedPassword,
 	})
 	_ = result
@@ -120,54 +117,50 @@ func (h *UserServiceHandler) handleRegister(w http.ResponseWriter, r *http.Reque
 	utils.WriteJSON(w, http.StatusCreated, userResponse)
 }
 
-func (h *UserServiceHandler) handleGoogleAuthCodeLogin(w http.ResponseWriter, r *http.Request) {
-	var googleLoginRequest model.UserGoogleLoginRequest
-	if err := utils.ParseJSON(r, &googleLoginRequest); err != nil {
+func (h *UserServiceHandler) handleOauth(w http.ResponseWriter, r *http.Request) {
+	var userRequest model.OAuthUser
+	if err := utils.ParseJSON(r, &userRequest); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	token, err := auth.GoogleOauthConfig.Exchange(context.Background(), googleLoginRequest.Code)
-
-	if err != nil {
-		http.Error(w, "Failed to exchange token", http.StatusInternalServerError)
+	if err := utils.Validate.Struct(userRequest); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
 		return
 	}
 
-	client := auth.GoogleOauthConfig.Client(context.Background(), token)
-	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
-	if err != nil {
-		http.Error(w, "Failed to get user info", http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
+	var obId primitive.ObjectID
 
-	var gmailData model.GmailData
-	if err := json.NewDecoder(resp.Body).Decode(&gmailData); err != nil {
-		http.Error(w, "Failed to decode user info", http.StatusInternalServerError)
-		return
-	}
-
-	user, err := h.repository.FindUserByEmail(gmailData.Email)
-
+	// check if user exists
+	user, err := h.repository.FindUserByEmail(userRequest.Email)
 	if user == nil {
-		user = &model.User{ID: primitive.NewObjectID(), Email: gmailData.Email, UserName: gmailData.GivenName}
-		_, err = h.repository.InsertUser(user)
-		if err != nil{
-			http.Error(w, "Database error", http.StatusInternalServerError)
+		obId = primitive.NewObjectID()
+		_, err := h.repository.InsertOAuthUser(&model.OAuthUser{
+			ID: obId,
+			OAuthID: userRequest.OAuthID,
+			UserName: userRequest.UserName,
+			Email: userRequest.Email,
+		})
+		if err != nil {
+			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Server error: %v"))
 			return
 		}
+	}else {
+		obId = user.ID
 	}
 	
-	JWTtoken, err := auth.CreateJWT(user.ID.Hex())
+	token, err := auth.CreateJWT(obId.Hex())
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	userResponse := model.UserLoginResponseFromUser(user)
-	userResponse.Token = JWTtoken
+	userResponse := model.UserLoginResponseFromUser(&model.User{
+		UserName: userRequest.UserName,
+		Email: userRequest.Email,
+	})
+	userResponse.Token = token
 
 	utils.WriteJSON(w, http.StatusCreated, userResponse)
-
 }

@@ -20,6 +20,14 @@ func (r *UsersRepo) InsertUser(user *model.User) (*mongo.InsertOneResult, error)
 	return result, nil
 }
 
+func (r *UsersRepo) InsertOAuthUser(user *model.OAuthUser) (*mongo.InsertOneResult, error) {
+	result, err := r.MongoCollection.InsertOne(context.Background(), user)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (r *UsersRepo) FindUserByEmail(email string) (*model.User, error) {
 	var user model.User
 	filter := bson.M{"email": email}
