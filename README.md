@@ -38,6 +38,24 @@ Response
 }
 ```
 
+### OAuth
+`/api/v1/user/oauth POST` 
+```json
+{
+    "userName": "Berk OAuth",
+    "email": "wiroOAuth@gmail.com",
+    "oAuthId": "12434563563"
+}
+```
+ Response
+ ```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzQXQiOjE3MzA1NDQ0MDgsInVzZXJJRCI6IjY3MTY0ZmRmMGYzOTFhMWZiMGZkNjE3ZSJ9.aZ5P1NTltnjs1F-CKLXfsSOBg6nHvUcMzm_h6uZ7ss4",
+    "userName": "example name",
+    "email": "example@gmail.com"
+}
+```
+
 ### Categories
 Get all categories 
 `/api/v1//categories/ GET`  <br> Response
