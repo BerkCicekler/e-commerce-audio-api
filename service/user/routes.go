@@ -24,6 +24,7 @@ func UserServiceNewHandler(repository repository.UsersRepo) *UserServiceHandler 
 func (h *UserServiceHandler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/user/login", h.handleLogin).Methods("POST")
 	router.HandleFunc("/user/register", h.handleRegister).Methods("POST")
+	router.HandleFunc("/user/oauth", h.handleOauth).Methods("POST")
 }
 
 func (h *UserServiceHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -95,7 +96,6 @@ func (h *UserServiceHandler) handleRegister(w http.ResponseWriter, r *http.Reque
 		ID: obId,
 		UserName: user.UserName,
 		Email: user.Email,
-		PhoneNumber: user.PhoneNumber,
 		Password: hashedPassword,
 	})
 	_ = result
@@ -112,6 +112,54 @@ func (h *UserServiceHandler) handleRegister(w http.ResponseWriter, r *http.Reque
 	}
 
 	userResponse := model.UserLoginResponseFromUser(&user)
+	userResponse.Token = token
+
+	utils.WriteJSON(w, http.StatusCreated, userResponse)
+}
+
+func (h *UserServiceHandler) handleOauth(w http.ResponseWriter, r *http.Request) {
+	var userRequest model.OAuthUser
+	if err := utils.ParseJSON(r, &userRequest); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := utils.Validate.Struct(userRequest); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
+		return
+	}
+
+	var obId primitive.ObjectID
+
+	// check if user exists
+	user, err := h.repository.FindUserByEmail(userRequest.Email)
+	if user == nil {
+		obId = primitive.NewObjectID()
+		_, err := h.repository.InsertOAuthUser(&model.OAuthUser{
+			ID: obId,
+			OAuthID: userRequest.OAuthID,
+			UserName: userRequest.UserName,
+			Email: userRequest.Email,
+		})
+		if err != nil {
+			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Server error: %v"))
+			return
+		}
+	}else {
+		obId = user.ID
+	}
+	
+	token, err := auth.CreateJWT(obId.Hex())
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	userResponse := model.UserLoginResponseFromUser(&model.User{
+		UserName: userRequest.UserName,
+		Email: userRequest.Email,
+	})
 	userResponse.Token = token
 
 	utils.WriteJSON(w, http.StatusCreated, userResponse)
