@@ -60,12 +60,14 @@ Response
 Get all categories 
 `/api/v1//categories/ GET`  <br> Response
  ```json
-[
+{
+    "categories": [
     {
         "_id": "671652995b41c8ea613df136",
         "value": "headphone"
     }
 ]
+}
 ```
 
 ### Shop
