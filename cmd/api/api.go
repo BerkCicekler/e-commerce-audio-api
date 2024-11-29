@@ -15,20 +15,24 @@ import (
 )
 
 type APIServer struct {
-	addr string
+	addr    string
+	baseDir string
 }
 
-func NewAPIServer(addr string) *APIServer{
+func NewAPIServer(addr, baseDir string) *APIServer {
 	return &APIServer{
-		addr: addr,
+		addr:    addr,
+		baseDir: baseDir,
 	}
 }
 
 func (s *APIServer) Run(mongoDatabase *mongo.Database) error {
-	router:= mux.NewRouter()
-	subRouter:= router.PathPrefix("/api/v1").Subrouter()
+	router := mux.NewRouter()
+	subRouter := router.PathPrefix("/api/v1").Subrouter()
 
-	imageHandler := image.ImageServiceHandler{}
+	imageHandler := image.ImageServiceHandler{
+		BaseDir: s.baseDir,
+	}
 	imageHandler.RegisterRoutes(subRouter)
 
 	userRepository := repository.UsersRepo{
@@ -36,7 +40,6 @@ func (s *APIServer) Run(mongoDatabase *mongo.Database) error {
 	}
 	userHandler := user.UserServiceNewHandler(userRepository)
 	userHandler.RegisterRoutes(subRouter)
-
 
 	categoriesRepository := repository.CategoriesRepo{
 		MongoCollection: mongoDatabase.Collection("categories"),
@@ -57,7 +60,6 @@ func (s *APIServer) Run(mongoDatabase *mongo.Database) error {
 	basketHandler.RegisterRoutes(subRouter)
 
 	log.Println("Listening on", s.addr)
-
 
 	return http.ListenAndServe(s.addr, router)
 }
