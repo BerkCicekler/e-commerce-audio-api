@@ -37,5 +37,5 @@ func (h *ProductServiceHandler) handleCategories(w http.ResponseWriter, r *http.
 		return
 	}
 
-	utils.WriteJSON(w, 200, products)
+	utils.WriteJSON(w, 200, map[string]interface{}{"products": products})
 }

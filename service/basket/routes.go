@@ -42,7 +42,7 @@ func (h *BasketServiceHandler) handleGetUserBasket(w http.ResponseWriter, r *htt
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
-	utils.WriteJSON(w, 200, userBasket)
+	utils.WriteJSON(w, 200, map[string]interface{}{"basket": userBasket})
 }
 
 func (h *BasketServiceHandler) handleAddItemToBasket(w http.ResponseWriter, r *http.Request) {
