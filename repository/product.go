@@ -14,7 +14,7 @@ type ProductRepo struct {
 	MongoCollection *mongo.Collection
 }
 
-func (r *ProductRepo) FetchFeatured(requestData *model.ProductRequest) ([]model.Product, error) {
+func (r *ProductRepo) FetchFeatured(searchText string, offset int64, requestData *model.ProductRequest) ([]model.Product, error) {
 	var categoryFilter bson.M
 
 	if requestData.CategoryIdHex != "" {
@@ -30,7 +30,7 @@ func (r *ProductRepo) FetchFeatured(requestData *model.ProductRequest) ([]model.
 
 	search := bson.M{
 		"name": bson.M{
-			"$regex":   requestData.Search + ".*",
+			"$regex":   searchText + ".*",
 			"$options": "i", // Case-insensitive
 		},
 	}
@@ -66,7 +66,7 @@ func (r *ProductRepo) FetchFeatured(requestData *model.ProductRequest) ([]model.
 		}
 	}
 
-	cur, err := r.MongoCollection.Find(context.TODO(), combinedFilter, requestData.RequestTOMongoDbOption())
+	cur, err := r.MongoCollection.Find(context.TODO(), combinedFilter, requestData.RequestTOMongoDbOption(offset))
 	if err != nil {
 		log.Fatal(err)
 	}

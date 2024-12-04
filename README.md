@@ -72,14 +72,11 @@ Get all categories
 
 ### Shop
 get items as filter <br>
-this request will return us max 20 products <br>
-so if we want to access more/diffrent products we have to set `startIndex` as much as we fetch products
-`/api/v1/shop/featured/ GET`  request 
+this request will return us max 10 products <br>
+`/api/v1/shop/featured?search=&offset= GET`  request 
 ```json
 {
-    "category": "671652995b41c8ea613df136",
-    "search": "",
-    "startIndex": 0,
+    "category": "671652995b41c8ea613df136", // additional
     "sortBy": "ascending/descending",
     "minPrice": 30,
     "maxPrice": 400

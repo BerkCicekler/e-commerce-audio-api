@@ -22,7 +22,7 @@ type ProductRequest struct {
 	MaxPrice      uint32 `json:"maxPrice"`
 }
 
-func (m *ProductRequest) RequestTOMongoDbOption() *options.FindOptions {
+func (m *ProductRequest) RequestTOMongoDbOption(offset int64) *options.FindOptions {
 	sortOrder := 0
 	switch m.SortBy {
 	case "desc":
@@ -34,7 +34,7 @@ func (m *ProductRequest) RequestTOMongoDbOption() *options.FindOptions {
 	if sortOrder != 0 {
 		findOptions.SetSort(bson.D{{Key: "price", Value: sortOrder}})
 	}
-	findOptions.SetSkip(int64(m.StartIndex))
+	findOptions.SetSkip(offset)
 	findOptions.SetLimit(10)
 	return findOptions
 }
