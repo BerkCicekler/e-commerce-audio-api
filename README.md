@@ -77,7 +77,7 @@ so if we want to access more/diffrent products we have to set `startIndex` as mu
 `/api/v1/shop/featured/ GET`  request 
 ```json
 {
-    "category": "671652995b41c8ea613df136", // required
+    "category": "671652995b41c8ea613df136",
     "search": "",
     "startIndex": 0,
     "sortBy": "ascending/descending",
