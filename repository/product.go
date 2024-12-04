@@ -14,53 +14,68 @@ type ProductRepo struct {
 	MongoCollection *mongo.Collection
 }
 
-func (r *ProductRepo) FetchFeatured(requestData *model.ProductRequest) ([]model.Product, error){
-	categoryOBID, err:=  primitive.ObjectIDFromHex(requestData.CategoryIdHex)
-	if err != nil{
-		return nil, err
-	}
-    
-    search := bson.M{
-        "name": bson.M{
-            "$regex":   requestData.Search + ".*", 
-            "$options": "i",                       // Case-insensitive
-        },
-    }
+func (r *ProductRepo) FetchFeatured(requestData *model.ProductRequest) ([]model.Product, error) {
+	var categoryFilter bson.M
 
-    filter := bson.M{
-        "category": categoryOBID,
-    }
+	if requestData.CategoryIdHex != "" {
+		categoryOBID, err := primitive.ObjectIDFromHex(requestData.CategoryIdHex)
+		if err != nil {
+			return nil, err
+		}
+		categoryFilter = bson.M{
+			"category": categoryOBID,
+		}
+
+	}
+
+	search := bson.M{
+		"name": bson.M{
+			"$regex":   requestData.Search + ".*",
+			"$options": "i", // Case-insensitive
+		},
+	}
 
 	priceFilter := bson.M{}
-    if requestData.MinPrice > 0 {
-        priceFilter["price"] = bson.M{"$gte": requestData.MinPrice}
-    }
-    if requestData.MaxPrice > 0 {
-        if _, exists := priceFilter["price"]; exists {
-            priceFilter["price"].(bson.M)["$lte"] = requestData.MaxPrice
-        } else {
-            priceFilter["price"] = bson.M{"$lte": requestData.MaxPrice}
-        }
-    }
+	if requestData.MinPrice > 0 {
+		priceFilter["price"] = bson.M{"$gte": requestData.MinPrice}
+	}
+	if requestData.MaxPrice > 0 {
+		if _, exists := priceFilter["price"]; exists {
+			priceFilter["price"].(bson.M)["$lte"] = requestData.MaxPrice
+		} else {
+			priceFilter["price"] = bson.M{"$lte": requestData.MaxPrice}
+		}
+	}
 
-    combinedFilter := bson.M{
-        "$and": []bson.M{
-            search,
-            filter,
-			priceFilter,
-        },
-    }
+	var combinedFilter bson.M
+
+	if categoryFilter == nil {
+		combinedFilter = bson.M{
+			"$and": []bson.M{
+				search,
+				priceFilter,
+			},
+		}
+	} else {
+		combinedFilter = bson.M{
+			"$and": []bson.M{
+				search,
+				categoryFilter,
+				priceFilter,
+			},
+		}
+	}
+
 	cur, err := r.MongoCollection.Find(context.TODO(), combinedFilter, requestData.RequestTOMongoDbOption())
 	if err != nil {
-        log.Fatal(err)
-    }
-    defer cur.Close(context.Background())
-    results := []model.Product{}
+		log.Fatal(err)
+	}
+	defer cur.Close(context.Background())
+	results := []model.Product{}
 
-
-    if err = cur.All(context.TODO(), &results); err != nil {
-        log.Fatal(err)
+	if err = cur.All(context.TODO(), &results); err != nil {
+		log.Fatal(err)
 		return nil, nil
-    }
+	}
 	return results, nil
 }
