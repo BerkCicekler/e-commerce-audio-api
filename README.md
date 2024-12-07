@@ -63,7 +63,7 @@ Get all categories
 {
     "categories": [
     {
-        "_id": "671652995b41c8ea613df136",
+        "id": "671652995b41c8ea613df136",
         "value": "headphone"
     }
 ]
@@ -84,32 +84,36 @@ this request will return us max 10 products <br>
 ```
 response
 ```json
-[
-    {
-        "_id": "6717af4decddea45c1a064de",
-        "pictureName": "headphone.jpg",
-        "name": "TMA-2 HD Wireless",
-        "price": 300
-    },
-]
+{
+    "products" :[
+        {
+            "id": "6717af4decddea45c1a064de",
+            "pictureName": "headphone.jpg",
+            "name": "TMA-2 HD Wireless",
+            "price": 300
+        },
+    ]
+}
 ```
 
 ### Basket fetch
 `/api/v1/basket/ GET` 
 response
 ```json
-[
-    {
-        "id": "67260023d0ee97422c630d53",
-        "product": {
-            "id": "6717af4decddea45c1a064de",
-            "pictureName": "headphone.jpg",
-            "name": "TMA-2 HD Wireless",
-            "price": 300
-        },
-        "count": 1
-    }
-]
+{
+    "basket": [
+        {
+            "id": "67260023d0ee97422c630d53",
+            "product": {
+                "id": "6717af4decddea45c1a064de",
+                "pictureName": "headphone.jpg",
+                "name": "TMA-2 HD Wireless",
+                "price": 300
+            },
+            "count": 1
+        }
+    ]
+}
 ```
 
 ### Basket Update
