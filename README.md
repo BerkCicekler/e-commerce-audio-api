@@ -100,9 +100,9 @@ response
 ```json
 [
     {
-        "_id": "67260023d0ee97422c630d53",
+        "id": "67260023d0ee97422c630d53",
         "product": {
-            "_id": "6717af4decddea45c1a064de",
+            "id": "6717af4decddea45c1a064de",
             "pictureName": "headphone.jpg",
             "name": "TMA-2 HD Wireless",
             "price": 300
