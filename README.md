@@ -14,9 +14,10 @@ This API uses mongoDB as database.
 Response
  ```json 
 {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzQXQiOjE3MzA1NDQ0MDgsInVzZXJJRCI6IjY3MTY0ZmRmMGYzOTFhMWZiMGZkNjE3ZSJ9.aZ5P1NTltnjs1F-CKLXfsSOBg6nHvUcMzm_h6uZ7ss4",
-    "userName": "mal yay",
-    "email": "wiro@gmail.com"
+    "token": "-",
+    "refreshToken": "-",
+    "userName": "example name",
+    "email": "example@gmail.com"
 }
 ```
 
@@ -32,7 +33,8 @@ Response
  Response
  ```json
 {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzQXQiOjE3MzA1NDQ0MDgsInVzZXJJRCI6IjY3MTY0ZmRmMGYzOTFhMWZiMGZkNjE3ZSJ9.aZ5P1NTltnjs1F-CKLXfsSOBg6nHvUcMzm_h6uZ7ss4",
+    "token": "-",
+    "refreshToken": "-",
     "userName": "example name",
     "email": "example@gmail.com"
 }
@@ -50,7 +52,22 @@ Response
  Response
  ```json
 {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzQXQiOjE3MzA1NDQ0MDgsInVzZXJJRCI6IjY3MTY0ZmRmMGYzOTFhMWZiMGZkNjE3ZSJ9.aZ5P1NTltnjs1F-CKLXfsSOBg6nHvUcMzm_h6uZ7ss4",
+    "token": "-",
+    "refreshToken": "-",
+    "userName": "example name",
+    "email": "example@gmail.com"
+}
+```
+
+### login with refreshToken
+`/api/v1/user/oauth POST` <br>
+`header`<br>
+`Authorization` = `refresh token`
+ Response
+ ```json
+{
+    "token": "-",
+    "refreshToken": "-",
     "userName": "example name",
     "email": "example@gmail.com"
 }

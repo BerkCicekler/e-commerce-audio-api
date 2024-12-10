@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,7 +21,7 @@ func WithJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := utils.GetTokenFromRequest(r)
 
-		token, err := validateJWT(tokenString)
+		token, err := ValidateJWT(tokenString)
 		if err != nil {
 			log.Printf("failed to validate token: %v", err)
 			permissionDenied(w)
@@ -34,6 +35,15 @@ func WithJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
 		}
 
 		claims := token.Claims.(jwt.MapClaims)
+
+		isExpired := validateIsJWTExpire(claims)
+
+		if isExpired {
+			log.Println("token has expired")
+			utils.WriteError(w, http.StatusUnauthorized, errors.New("token expired"))
+			return
+		}
+
 		str := claims["userID"].(string)
 
 		// Add the user to the context
@@ -46,23 +56,41 @@ func WithJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func CreateJWT(userID string) (string, error) {
-	expiration := time.Second * time.Duration(6000)
+func CreateJWT(userID string) (string, string, error) {
+	accessTokenExpiration := time.Second * time.Duration(6000)
+	refreshTokenExpiration := time.Second * time.Duration(600000)
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	// Access Token
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userID":    userID,
-		"expiresAt": time.Now().Add(expiration).Unix(),
+		"expiresAt": time.Now().Add(accessTokenExpiration).Unix(),
 	})
 
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	// Refresh Token
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userID":    userID,
+		"expiresAt": time.Now().Add(refreshTokenExpiration).Unix(),
+	})
+
+	// JWT Secret
+	secret := []byte(os.Getenv("JWT_SECRET"))
+
+	// Sign Access Token
+	accessTokenString, err := accessToken.SignedString(secret)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return tokenString, err
+	// Sign Refresh Token
+	refreshTokenString, err := refreshToken.SignedString(secret)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessTokenString, refreshTokenString, nil
 }
 
-func validateJWT(tokenString string) (*jwt.Token, error) {
+func ValidateJWT(tokenString string) (*jwt.Token, error) {
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -70,6 +98,23 @@ func validateJWT(tokenString string) (*jwt.Token, error) {
 
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
+}
+
+func validateIsJWTExpire(claims jwt.MapClaims) bool {
+	// Check token expiration
+	expiresAt, ok := claims["expiresAt"].(float64) // jwt.MapClaims stores numbers as float64
+	if !ok {
+		log.Println("missing or invalid expiresAt in token")
+		return true
+	}
+
+	// Current time
+	now := time.Now().Unix()
+	if int64(expiresAt) < now {
+		log.Println("token has expired")
+		return true
+	}
+	return false
 }
 
 func permissionDenied(w http.ResponseWriter) {
