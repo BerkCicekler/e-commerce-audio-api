@@ -25,6 +25,7 @@ func (h *UserServiceHandler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/user/login", h.handleLogin).Methods("POST")
 	router.HandleFunc("/user/register", h.handleRegister).Methods("POST")
 	router.HandleFunc("/user/oauth", h.handleOauth).Methods("POST")
+	router.HandleFunc("/user/refreshToken", auth.WithJWTAuth(h.handleRefreshToken)).Methods("POST")
 }
 
 func (h *UserServiceHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +52,7 @@ func (h *UserServiceHandler) handleLogin(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	token, err := auth.CreateJWT(u.ID.Hex())
+	token, refreshToken, err := auth.CreateJWT(u.ID.Hex())
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -59,6 +60,7 @@ func (h *UserServiceHandler) handleLogin(w http.ResponseWriter, r *http.Request)
 
 	userResponse := model.UserLoginResponseFromUser(u)
 	userResponse.Token = token
+	userResponse.RefreshToken = refreshToken
 
 	utils.WriteJSON(w, http.StatusOK, userResponse)
 }
@@ -93,9 +95,9 @@ func (h *UserServiceHandler) handleRegister(w http.ResponseWriter, r *http.Reque
 	obId := primitive.NewObjectID()
 
 	result, err := h.repository.InsertUser(&model.User{
-		ID: obId,
+		ID:       obId,
 		UserName: user.UserName,
-		Email: user.Email,
+		Email:    user.Email,
 		Password: hashedPassword,
 	})
 	_ = result
@@ -104,8 +106,8 @@ func (h *UserServiceHandler) handleRegister(w http.ResponseWriter, r *http.Reque
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
-	
-	token, err := auth.CreateJWT(obId.Hex())
+
+	token, refreshToken, err := auth.CreateJWT(obId.Hex())
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -113,6 +115,7 @@ func (h *UserServiceHandler) handleRegister(w http.ResponseWriter, r *http.Reque
 
 	userResponse := model.UserLoginResponseFromUser(&user)
 	userResponse.Token = token
+	userResponse.RefreshToken = refreshToken
 
 	utils.WriteJSON(w, http.StatusCreated, userResponse)
 }
@@ -137,20 +140,20 @@ func (h *UserServiceHandler) handleOauth(w http.ResponseWriter, r *http.Request)
 	if user == nil {
 		obId = primitive.NewObjectID()
 		_, err := h.repository.InsertOAuthUser(&model.OAuthUser{
-			ID: obId,
-			OAuthID: userRequest.OAuthID,
+			ID:       obId,
+			OAuthID:  userRequest.OAuthID,
 			UserName: userRequest.UserName,
-			Email: userRequest.Email,
+			Email:    userRequest.Email,
 		})
 		if err != nil {
 			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Server error: %v"))
 			return
 		}
-	}else {
+	} else {
 		obId = user.ID
 	}
-	
-	token, err := auth.CreateJWT(obId.Hex())
+
+	token, refreshToken, err := auth.CreateJWT(obId.Hex())
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -158,9 +161,36 @@ func (h *UserServiceHandler) handleOauth(w http.ResponseWriter, r *http.Request)
 
 	userResponse := model.UserLoginResponseFromUser(&model.User{
 		UserName: userRequest.UserName,
-		Email: userRequest.Email,
+		Email:    userRequest.Email,
 	})
 	userResponse.Token = token
+	userResponse.RefreshToken = refreshToken
 
 	utils.WriteJSON(w, http.StatusCreated, userResponse)
+}
+
+func (h *UserServiceHandler) handleRefreshToken(w http.ResponseWriter, r *http.Request) {
+	uId, err := primitive.ObjectIDFromHex(auth.GetUserIDFromContext(r.Context()))
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	user, err := h.repository.FindUserById(uId)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("User doesn't exist"))
+		return
+	}
+
+	token, refreshToken, err := auth.CreateJWT(uId.Hex())
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	userResponse := model.UserLoginResponseFromUser(user)
+	userResponse.Token = token
+	userResponse.RefreshToken = refreshToken
+	utils.WriteJSON(w, http.StatusCreated, userResponse)
+
 }

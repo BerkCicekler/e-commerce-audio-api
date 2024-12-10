@@ -31,14 +31,14 @@ func (h *BasketServiceHandler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *BasketServiceHandler) handleGetUserBasket(w http.ResponseWriter, r *http.Request) {
-	uId,err := primitive.ObjectIDFromHex(auth.GetUserIDFromContext(r.Context()))
-	if err!= nil {
+	uId, err := primitive.ObjectIDFromHex(auth.GetUserIDFromContext(r.Context()))
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	userBasket, err := h.repository.FetchUserBasket(&uId)
-	if err!= nil {
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -48,8 +48,8 @@ func (h *BasketServiceHandler) handleGetUserBasket(w http.ResponseWriter, r *htt
 func (h *BasketServiceHandler) handleAddItemToBasket(w http.ResponseWriter, r *http.Request) {
 	var requestModel model.BasketAddToBasketRequestModel
 
-	uId,err := primitive.ObjectIDFromHex(auth.GetUserIDFromContext(r.Context()))
-	if err!= nil {
+	uId, err := primitive.ObjectIDFromHex(auth.GetUserIDFromContext(r.Context()))
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -58,14 +58,14 @@ func (h *BasketServiceHandler) handleAddItemToBasket(w http.ResponseWriter, r *h
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
-	productObId,err  := primitive.ObjectIDFromHex(requestModel.Product)
+	productObId, err := primitive.ObjectIDFromHex(requestModel.Product)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 	basketId, err := h.repository.AddToBasket(&productObId, &uId)
 	fmt.Println(basketId.Hex())
-	if err!= nil {
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -81,7 +81,7 @@ func (h *BasketServiceHandler) handleUpdateBasketItem(w http.ResponseWriter, r *
 	}
 
 	err := h.repository.AddToItemCount(requestModel.Count, &requestModel.ID)
-	if err!= nil {
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -97,7 +97,7 @@ func (h *BasketServiceHandler) handleRemoveFromBasket(w http.ResponseWriter, r *
 	}
 
 	err := h.repository.DeleteItem(&requestModel.ID)
-	if err!= nil {
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -105,14 +105,14 @@ func (h *BasketServiceHandler) handleRemoveFromBasket(w http.ResponseWriter, r *
 }
 
 func (h *BasketServiceHandler) handleClearUserBasket(w http.ResponseWriter, r *http.Request) {
-	uId,err := primitive.ObjectIDFromHex(auth.GetUserIDFromContext(r.Context()))
-	if err!= nil {
+	uId, err := primitive.ObjectIDFromHex(auth.GetUserIDFromContext(r.Context()))
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	err = h.repository.ClearUserBasket(&uId)
-	if err!= nil {
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
