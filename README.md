@@ -184,4 +184,5 @@ JWT_SECRET="SUPERSECRET"
 ```
 create all the collections in ur DB and import jsons the correct collections <br>
 the dumy datas can be found in: `/collectionDumData/` <br>
-run `go run main.go` command inside the project directory
+run `go run main.go` command inside the project directory <br>
+if the `rum` command doesn't work build the project with `go build` and open the executable file
