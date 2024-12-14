@@ -174,15 +174,35 @@ request
 ### IMAGE
 ```/api/v1/image/{ImageFile} GET```
 
-## How do I use
-download the project <br>
-create a `.env` file and fill the variables 
-```env
-MONGO_URI="PASTE your mongoURI"
-DB_NAME="DB name"
-JWT_SECRET="SUPERSECRET"
-```
-create all the collections in ur DB and import jsons the correct collections <br>
-the dumy datas can be found in: `/collectionDumData/` <br>
-run `go run main.go` command inside the project directory <br>
-if the `rum` command doesn't work build the project with `go build` and open the executable file
+## Getting Started  
+
+Follow these steps to set up and run the project:  
+
+1. **Download the Project**  
+   Clone the repository to your local machine:  
+   ```bash  
+   git clone https://github.com/BerkCicekler/e-commerce-audio-api
+   cd e-commerce-api  
+
+2. **Set Up Environment Variables**  
+   Create a .env file in the root directory and fill in the required variables:  
+   ```env  
+    MONGO_URI="PASTE_YOUR_MONGO_URI"  
+    DB_NAME="YOUR_DB_NAME"  
+    JWT_SECRET="YOUR_SUPER_SECRET_KEY"  
+
+2. **Prepare the Database**  
+   - Create all the necessary collections in your database.
+   - Import the dummy data into the appropriate collections.
+   - Dummy data files are located in the `/collectionDummyData/` directory.
+
+3. **Run the Project:**  
+   - Inside the project directory, execute the following command:  
+     ```bash  
+     go run main.go  
+     ```  
+   - If the `go run` command fails, build the project manually:  
+     ```bash  
+     go build  
+     ./main  
+     ```  
